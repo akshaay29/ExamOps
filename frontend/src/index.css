@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base ─────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    @apply bg-surface text-slate-300 font-sans;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #root {
+    width: 100%;
+    min-height: 100svh;
+  }
+}
+
+/* ─── Component layer ───────────────────────── */
+@layer components {
+
+  /* Glass card */
+  .glass {
+    background: rgba(18, 21, 42, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(62, 75, 140, 0.35);
+    border-radius: 1.25rem;
+  }
+
+  .glass-light {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 1rem;
+  }
+
+  /* Role card */
+  .role-card {
+    @apply glass-light p-5 flex flex-col items-center gap-3 cursor-pointer
+           transition-all duration-300 select-none;
+  }
+  .role-card:hover {
+    background: rgba(59, 91, 245, 0.12);
+    border-color: rgba(59, 91, 245, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px -8px rgba(59, 91, 245, 0.35);
+  }
+  .role-card.active {
+    background: rgba(59, 91, 245, 0.18);
+    border-color: rgba(59, 91, 245, 0.7);
+    box-shadow: 0 0 0 1px rgba(59, 91, 245, 0.5), 0 12px 40px -8px rgba(59, 91, 245, 0.4);
+  }
+
+  /* Form input */
+  .form-input {
+    @apply w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10
+           text-slate-200 placeholder-slate-500 text-sm
+           focus:outline-none focus:border-brand-500 focus:ring-2
+           focus:ring-brand-500/20 transition-all duration-200;
+  }
+
+  /* Gradient button */
+  .btn-primary {
+    @apply w-full py-3 px-6 rounded-xl font-semibold text-sm text-white
+           transition-all duration-300 relative overflow-hidden;
+    background: linear-gradient(135deg, #3b5bf5 0%, #7c3aed 100%);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 8px 32px -4px rgba(59, 91, 245, 0.5);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-secondary {
+    @apply w-full py-3 px-6 rounded-xl font-medium text-sm text-slate-300
+           border border-white/10 bg-white/5 hover:bg-white/10
+           hover:border-white/20 transition-all duration-200;
+  }
+
+  /* Tag chip */
+  .chip {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+
+  /* Drop zone */
+  .dropzone {
+    @apply glass-light rounded-2xl flex flex-col items-center justify-center
+           gap-3 p-8 cursor-pointer transition-all duration-300
+           border-dashed border-2 border-white/10;
+  }
+  .dropzone:hover,
+  .dropzone.drag-over {
+    border-color: rgba(59, 91, 245, 0.6);
+    background: rgba(59, 91, 245, 0.08);
+  }
+
+  /* Animated shapes */
+  .shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(1px);
+    opacity: 0.15;
+    pointer-events: none;
+  }
+}
+
+/* ─── Utility layer ─────────────────────────── */
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(135deg, #6285fa 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glow-brand {
+    box-shadow: 0 0 60px -10px rgba(59,91,245,0.6);
+  }
+
+  .bg-mesh {
+    background:
+      radial-gradient(ellipse 80% 50% at 20% -20%, rgba(59,91,245,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 110%, rgba(124,58,237,0.15) 0%, transparent 60%),
+      #0d0f1c;
+  }
+
+  .scrollbar-hide {
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+}

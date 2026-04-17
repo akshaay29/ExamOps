@@ -1,0 +1,9 @@
+room_name,building,rows,seats_per_row
+Room 101,Block A,5,6
+Room 102,Block A,6,7
+Room 103,Block A,5,7
+Lab 201,Block B,4,5
+Lab 202,Block B,4,5
+Room 301,Block C,6,6
+Room 302,Block C,5,8
+Seminar Hall,Block D,8,10
