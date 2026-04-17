@@ -1,0 +1,100 @@
+rollno,nameid,course name,course id,paper_group_id,year,branch,email
+2026CE1000,Ishani Deshmukh,Geotechnical Eng,CE-701,GEO_GRP_7,4,CE,guptaam_5@rknec.edu
+2026IT1001,Ananya Bhide,Data Structures,IT-302,DS_GRP_3,2,IT,student1@rbunagpur.in
+2026CS1002,Shruti Chopde,Mathematics-III,CSE-301,MATH_III_COMMON,4,CS,student2@rbunagpur.in
+2026EE1003,Shruti Shinde,Power Systems,EE-501,PS_GRP_5,1,EE,student3@rbunagpur.in
+2026EE1004,Tanmay Kulkarni,Electrical Machines,EE-304,ELEC_COMMON,2,EE,student4@rbunagpur.in
+2026CS1005,Ananya Wankhede,Theory of Computation,CSE-501,TOC_GRP_5,4,CS,student5@rbunagpur.in
+2026ME1006,Sameer Sharma,Electrical Machines,ME-304,ELEC_COMMON,3,ME,student6@rbunagpur.in
+2026EE1007,Ananya Bhide,Electrical Machines,EE-304,ELEC_COMMON,3,EE,student7@rbunagpur.in
+2026CS1008,Sameer Sharma,Theory of Computation,CSE-501,TOC_GRP_5,1,CS,student8@rbunagpur.in
+2026ME1009,Tanmay Kulkarni,Thermodynamics,ME-302,THERMO_GRP_3,1,ME,student9@rbunagpur.in
+2026CE1010,Tanmay Kulkarni,Geotechnical Eng,CE-701,GEO_GRP_7,1,CE,student10@rbunagpur.in
+2026EE1011,Aarav Patil,Electrical Machines,EE-304,ELEC_COMMON,2,EE,student11@rbunagpur.in
+2026ME1012,Vikram Gadkari,Thermodynamics,ME-302,THERMO_GRP_3,1,ME,student12@rbunagpur.in
+2026EC1013,Aarav Patil,Digital Electronics,EC-302,DIGITAL_GRP,1,EC,student13@rbunagpur.in
+2026EE1014,Vikram Gadkari,Power Systems,EE-501,PS_GRP_5,1,EE,student14@rbunagpur.in
+2026IT1015,Shruti Chopde,Mathematics-III,IT-301,MATH_III_COMMON,2,IT,student15@rbunagpur.in
+2026EE1016,Ananya Bhide,Electrical Machines,EE-304,ELEC_COMMON,1,EE,student16@rbunagpur.in
+2026CE1017,Ananya Wankhede,Geotechnical Eng,CE-701,GEO_GRP_7,1,CE,student17@rbunagpur.in
+2026ME1018,Ishani Deshmukh,Thermodynamics,ME-302,THERMO_GRP_3,2,ME,student18@rbunagpur.in
+2026EC1019,Ananya Wankhede,Digital Electronics,EC-302,DIGITAL_GRP,3,EC,student19@rbunagpur.in
+2026IT1020,Aarav Patil,Mathematics-III,IT-301,MATH_III_COMMON,2,IT,student20@rbunagpur.in
+2026IT1021,Sameer Sharma,Data Structures,IT-302,DS_GRP_3,1,IT,student21@rbunagpur.in
+2026EE1022,Vikram Gadkari,Electrical Machines,EE-304,ELEC_COMMON,3,EE,student22@rbunagpur.in
+2026EE1023,Ananya Wankhede,Power Systems,EE-501,PS_GRP_5,2,EE,student23@rbunagpur.in
+2026IT1024,Shruti Chopde,Mathematics-III,IT-301,MATH_III_COMMON,2,IT,student24@rbunagpur.in
+2026EE1025,Prathamesh Tiwari,Electrical Machines,EE-304,ELEC_COMMON,1,EE,student25@rbunagpur.in
+2026CS1026,Vikram Gadkari,Mathematics-III,CSE-301,MATH_III_COMMON,4,CS,student26@rbunagpur.in
+2026IT1027,Ishani Deshmukh,Mathematics-III,IT-301,MATH_III_COMMON,4,IT,student27@rbunagpur.in
+2026ME1028,Shruti Shinde,Electrical Machines,ME-304,ELEC_COMMON,4,ME,student28@rbunagpur.in
+2026EE1029,Vikram Gadkari,Power Systems,EE-501,PS_GRP_5,1,EE,student29@rbunagpur.in
+2026CS1030,Ishani Deshmukh,Theory of Computation,CSE-501,TOC_GRP_5,3,CS,guptaakshay798@gmail.com
+2026CS1031,Ananya Wankhede,Theory of Computation,CSE-501,TOC_GRP_5,2,CS,student31@rbunagpur.in
+2026IT1032,Tanmay Kulkarni,Data Structures,IT-302,DS_GRP_3,3,IT,student32@rbunagpur.in
+2026ME1033,Tanmay Kulkarni,Electrical Machines,ME-304,ELEC_COMMON,1,ME,student33@rbunagpur.in
+2026IT1034,Tanmay Kulkarni,Mathematics-III,IT-301,MATH_III_COMMON,4,IT,student34@rbunagpur.in
+2026CS1035,Ananya Bhide,Mathematics-III,CSE-301,MATH_III_COMMON,1,CS,student35@rbunagpur.in
+2026CE1036,Prathamesh Tiwari,Structural Analysis,CE-501,STRUCT_GRP_5,1,CE,student36@rbunagpur.in
+2026ME1037,Shruti Chopde,Electrical Machines,ME-304,ELEC_COMMON,4,ME,student37@rbunagpur.in
+2026CS1038,Ishani Deshmukh,Mathematics-III,CSE-301,MATH_III_COMMON,2,CS,guptaam_4@rknec.edu
+2026ME1039,Aarav Patil,Electrical Machines,ME-304,ELEC_COMMON,3,ME,student39@rbunagpur.in
+2026CS1040,Shruti Shinde,Mathematics-III,CSE-301,MATH_III_COMMON,2,CS,student40@rbunagpur.in
+2026EC1041,Prathamesh Tiwari,Digital Electronics,EC-302,DIGITAL_GRP,2,EC,student41@rbunagpur.in
+2026CE1042,Shruti Chopde,Geotechnical Eng,CE-701,GEO_GRP_7,3,CE,student42@rbunagpur.in
+2026CS1043,Sameer Sharma,Mathematics-III,CSE-301,MATH_III_COMMON,4,CS,student43@rbunagpur.in
+2026CE1044,Aarav Patil,Geotechnical Eng,CE-701,GEO_GRP_7,1,CE,student44@rbunagpur.in
+2026CE1045,Prathamesh Tiwari,Geotechnical Eng,CE-701,GEO_GRP_7,3,CE,student45@rbunagpur.in
+2026ME1046,Prathamesh Tiwari,Electrical Machines,ME-304,ELEC_COMMON,1,ME,student46@rbunagpur.in
+2026EC1047,Prathamesh Tiwari,Digital Electronics,EC-302,DIGITAL_GRP,1,EC,student47@rbunagpur.in
+2026IT1048,Ananya Wankhede,Data Structures,IT-302,DS_GRP_3,3,IT,student48@rbunagpur.in
+2026EE1049,Ananya Bhide,Electrical Machines,EE-304,ELEC_COMMON,3,EE,student49@rbunagpur.in
+2026CE1050,Vikram Gadkari,Geotechnical Eng,CE-701,GEO_GRP_7,1,CE,student50@rbunagpur.in
+2026CS1051,Shruti Chopde,Mathematics-III,CSE-301,MATH_III_COMMON,3,CS,student51@rbunagpur.in
+2026EE1052,Tanmay Kulkarni,Power Systems,EE-501,PS_GRP_5,3,EE,student52@rbunagpur.in
+2026EC1053,Prathamesh Tiwari,Digital Electronics,EC-302,DIGITAL_GRP,1,EC,student53@rbunagpur.in
+2026EE1054,Vikram Gadkari,Power Systems,EE-501,PS_GRP_5,4,EE,student54@rbunagpur.in
+2026CS1055,Shruti Shinde,Mathematics-III,CSE-301,MATH_III_COMMON,2,CS,student55@rbunagpur.in
+2026CE1056,Ananya Bhide,Structural Analysis,CE-501,STRUCT_GRP_5,3,CE,student56@rbunagpur.in
+2026EE1057,Ananya Bhide,Electrical Machines,EE-304,ELEC_COMMON,4,EE,student57@rbunagpur.in
+2026CS1058,Ishani Deshmukh,Theory of Computation,CSE-501,TOC_GRP_5,1,CS,ak125gp@gmail.com
+2026CE1059,Sameer Sharma,Geotechnical Eng,CE-701,GEO_GRP_7,3,CE,student59@rbunagpur.in
+2026CE1060,Shruti Shinde,Geotechnical Eng,CE-701,GEO_GRP_7,3,CE,student60@rbunagpur.in
+2026CE1061,Ananya Bhide,Geotechnical Eng,CE-701,GEO_GRP_7,2,CE,student61@rbunagpur.in
+2026EE1062,Ananya Wankhede,Electrical Machines,EE-304,ELEC_COMMON,2,EE,student62@rbunagpur.in
+2026CE1063,Shruti Shinde,Structural Analysis,CE-501,STRUCT_GRP_5,3,CE,student63@rbunagpur.in
+2026ME1064,Prathamesh Tiwari,Thermodynamics,ME-302,THERMO_GRP_3,1,ME,student64@rbunagpur.in
+2026EE1065,Sameer Sharma,Electrical Machines,EE-304,ELEC_COMMON,3,EE,student65@rbunagpur.in
+2026EC1066,Aarav Patil,Digital Electronics,EC-302,DIGITAL_GRP,4,EC,student66@rbunagpur.in
+2026CE1067,Sameer Sharma,Structural Analysis,CE-501,STRUCT_GRP_5,1,CE,student67@rbunagpur.in
+2026IT1068,Sameer Sharma,Data Structures,IT-302,DS_GRP_3,4,IT,student68@rbunagpur.in
+2026CS1069,Ananya Bhide,Mathematics-III,CSE-301,MATH_III_COMMON,4,CS,student69@rbunagpur.in
+2026CE1070,Ananya Bhide,Geotechnical Eng,CE-701,GEO_GRP_7,1,CE,student70@rbunagpur.in
+2026EC1071,Tanmay Kulkarni,Microprocessors,EC-501,MP_GRP_5,4,EC,student71@rbunagpur.in
+2026IT1072,Prathamesh Tiwari,Mathematics-III,IT-301,MATH_III_COMMON,4,IT,student72@rbunagpur.in
+2026CE1073,Ananya Bhide,Structural Analysis,CE-501,STRUCT_GRP_5,1,CE,student73@rbunagpur.in
+2026EC1074,Aarav Patil,Microprocessors,EC-501,MP_GRP_5,4,EC,student74@rbunagpur.in
+2026IT1075,Ishani Deshmukh,Mathematics-III,IT-301,MATH_III_COMMON,2,IT,student75@rbunagpur.in
+2026EE1076,Ananya Wankhede,Electrical Machines,EE-304,ELEC_COMMON,2,EE,student76@rbunagpur.in
+2026EC1077,Sameer Sharma,Microprocessors,EC-501,MP_GRP_5,2,EC,student77@rbunagpur.in
+2026ME1078,Ananya Wankhede,Thermodynamics,ME-302,THERMO_GRP_3,2,ME,student78@rbunagpur.in
+2026IT1079,Aarav Patil,Data Structures,IT-302,DS_GRP_3,2,IT,student79@rbunagpur.in
+2026IT1080,Shruti Shinde,Data Structures,IT-302,DS_GRP_3,3,IT,student80@rbunagpur.in
+2026CE1081,Sameer Sharma,Structural Analysis,CE-501,STRUCT_GRP_5,1,CE,student81@rbunagpur.in
+2026CE1082,Prathamesh Tiwari,Geotechnical Eng,CE-701,GEO_GRP_7,1,CE,student82@rbunagpur.in
+2026CE1083,Ananya Wankhede,Geotechnical Eng,CE-701,GEO_GRP_7,2,CE,student83@rbunagpur.in
+2026ME1084,Shruti Chopde,Electrical Machines,ME-304,ELEC_COMMON,4,ME,student84@rbunagpur.in
+2026ME1085,Tanmay Kulkarni,Thermodynamics,ME-302,THERMO_GRP_3,3,ME,student85@rbunagpur.in
+2026CS1086,Shruti Chopde,Theory of Computation,CSE-501,TOC_GRP_5,3,CS,student86@rbunagpur.in
+2026IT1087,Aarav Patil,Mathematics-III,IT-301,MATH_III_COMMON,1,IT,student87@rbunagpur.in
+2026CE1088,Shruti Shinde,Geotechnical Eng,CE-701,GEO_GRP_7,3,CE,student88@rbunagpur.in
+2026ME1089,Vikram Gadkari,Electrical Machines,ME-304,ELEC_COMMON,2,ME,student89@rbunagpur.in
+2026CS1090,Tanmay Kulkarni,Theory of Computation,CSE-501,TOC_GRP_5,1,CS,student90@rbunagpur.in
+2026ME1091,Vikram Gadkari,Thermodynamics,ME-302,THERMO_GRP_3,3,ME,student91@rbunagpur.in
+2026ME1092,Shruti Chopde,Thermodynamics,ME-302,THERMO_GRP_3,1,ME,student92@rbunagpur.in
+2026ME1093,Ananya Bhide,Thermodynamics,ME-302,THERMO_GRP_3,4,ME,student93@rbunagpur.in
+2026ME1094,Vikram Gadkari,Thermodynamics,ME-302,THERMO_GRP_3,3,ME,student94@rbunagpur.in
+2026CS1095,Shruti Chopde,Mathematics-III,CSE-301,MATH_III_COMMON,4,CS,student95@rbunagpur.in
+2026EE1096,Shruti Chopde,Electrical Machines,EE-304,ELEC_COMMON,4,EE,student96@rbunagpur.in
+2026CS1097,Aarav Patil,Theory of Computation,CSE-501,TOC_GRP_5,2,CS,student97@rbunagpur.in
+2026EC1098,Ananya Wankhede,Microprocessors,EC-501,MP_GRP_5,1,EC,student98@rbunagpur.in

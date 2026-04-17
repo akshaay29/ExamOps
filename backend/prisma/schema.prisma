@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+enum Role {
+  ADMIN
+  STUDENT
+  INVIGILATOR
+}
+
+enum Status {
+  UNMARKED
+  PRESENT
+  ABSENT
+}
+
+model User {
+  id           String          @id @default(uuid())
+  role         Role
+  email        String?         @unique
+  passwordHash String
+  name         String
+  otp          String?
+  otpExpiry    DateTime?
+  createdAt    DateTime        @default(now())
+  student      StudentProfile?
+}
+
+model StudentProfile {
+  id          String           @id @default(uuid())
+  rollNo      String           @unique
+  dob         DateTime
+  userId      String           @unique
+  branch      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  allocations SeatAllocation[]
+}
+
+model Room {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  building    String
+  rows        Int
+  seatsPerRow Int
+  capacity    Int
+  layout      Json?
+  allocations SeatAllocation[]
+}
+
+model Exam {
+  id          String           @id
+  subject     String
+  date        DateTime
+  startTime   String
+  endTime     String
+  branches    String[]
+  allocations SeatAllocation[]
+}
+
+model SeatAllocation {
+  id        String         @id @default(uuid())
+  examId    String
+  roomId    String
+  studentId String
+  rowNo     Int
+  colNo     Int
+  qrToken   String         @unique
+  status    Status         @default(UNMARKED)
+  scannedAt DateTime?
+  scannedBy String?
+
+  exam      Exam           @relation(fields: [examId], references: [id], onDelete: Cascade)
+  room      Room           @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([examId, roomId, rowNo, colNo])
+  @@index([examId, roomId])
+}
