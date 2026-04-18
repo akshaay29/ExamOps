@@ -39,9 +39,9 @@ router.post('/send-otp', async (req: Request, res: Response): Promise<void> => {
         host: smtpHost,
         port: smtpPort,
         secure: true,
-        auth: { 
-          user: process.env.SMTP_USER, 
-          pass: process.env.SMTP_PASS 
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS
         }
       })
       await transporter.sendMail({
@@ -84,7 +84,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 
       const user = profile.user
       if (!otp) { res.status(400).json({ error: 'OTP is required' }); return }
-      
+
       if (!user.otp || user.otp !== otp || !user.otpExpiry || user.otpExpiry < new Date()) {
         res.status(401).json({ error: 'Invalid or expired OTP' }); return
       }
@@ -145,14 +145,14 @@ router.post('/magic-link', async (req: Request, res: Response): Promise<void> =>
   console.log(`[MAGIC-LINK] Request initiated for email: "${email}"`)
   try {
     const user = await prisma.user.findUnique({ where: { email } })
-    if (!user) { 
+    if (!user) {
       console.log(`[MAGIC-LINK] Error: User not found in database for email: "${email}"`)
       res.status(404).json({ error: 'User not found' })
-      return 
+      return
     }
-    
+
     console.log(`[MAGIC-LINK] Found user: ${user.id} with role: ${user.role}`)
-    
+
     if (user.role !== 'ADMIN' && user.role !== 'INVIGILATOR') {
       console.log(`[MAGIC-LINK] Error: Role ${user.role} is not permitted for magic links.`)
       res.status(403).json({ error: 'Magic link is only available for Admin and Invigilator' })
@@ -177,9 +177,9 @@ router.post('/magic-link', async (req: Request, res: Response): Promise<void> =>
       host: smtpHost,
       port: smtpPort,
       secure: true,
-      auth: { 
-        user: process.env.SMTP_USER, 
-        pass: process.env.SMTP_PASS 
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
       }
     })
 
