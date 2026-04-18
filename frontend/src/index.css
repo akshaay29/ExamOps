@@ -61,9 +61,16 @@
   /* Form input */
   .form-input {
     @apply w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10
-           text-black placeholder-slate-500 text-sm
+           text-white placeholder-slate-500 text-sm
            focus:outline-none focus:border-brand-500 focus:ring-2
            focus:ring-brand-500/20 transition-all duration-200;
+  }
+  .form-input:-webkit-autofill,
+  .form-input:-webkit-autofill:hover,
+  .form-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #ffffff;
+    -webkit-box-shadow: 0 0 0 1000px rgba(255,255,255,0.05) inset;
+    transition: background-color 5000s ease-in-out 0s;
   }
   .form-input option {
     @apply text-slate-900 bg-white;
