@@ -242,10 +242,10 @@ const flyInRight: Variants = {
 
 function FeaturesSection() {
   const features = [
-    { icon: LayoutGrid, title: 'Intelligent Seating Algorithm', desc: 'Our advanced algorithm ensures optimal distance between students of the same course. Customize constraints based on room capacities and exam types.', color: 'text-brand-400', bg: 'bg-brand-500/20' },
+    { icon: LayoutGrid, title: 'Intelligent Seating Algorithm', desc: 'Our advanced algorithm allocates students in exam halls in seconds. Customize constraints based on room capacities and exam types.', color: 'text-brand-400', bg: 'bg-brand-500/20' },
     { icon: Activity, title: 'Live Admin Dashboard', desc: 'Monitor the exact status of your exams in real-time. See which rooms are full, track invigilator activity, and handle emergencies centrally.', color: 'text-emerald-400', bg: 'bg-emerald-500/20' },
     { icon: QrCode, title: 'QR-Powered Entry', desc: 'Eradicate proxy attendance. Students scan their dynamically generated QR codes at the exam hall for instant verification.', color: 'text-amber-400', bg: 'bg-amber-500/20' },
-    { icon: FileText, title: 'Comprehensive Reports', desc: 'Generate post-exam compliance reports automatically. Export attendance logs as PDF or CSV in seconds, ready for audits.', color: 'text-rose-400', bg: 'bg-rose-500/20' }
+    { icon: FileText, title: 'Comprehensive Reports', desc: 'Generate post-exam compliance reports automatically. Export attendance logs as PDF in seconds, ready for audits.', color: 'text-rose-400', bg: 'bg-rose-500/20' }
   ]
 
   return (
@@ -282,7 +282,7 @@ function FeaturesSection() {
       </div>
 
       <div className="text-center mt-32 pb-12 flex flex-col items-center gap-4">
-        <a 
+        <a
           href="https://mail.google.com/mail/?view=cm&fs=1&to=guptaakshay798@gmail.com&su=[ExamOps%20Bug%20Report]&body=Please%20describe%20the%20bug%20you%20encountered:%0A%0A1.%20What%20happened?%0A%0A%0A2.%20What%20did%20you%20expect%20to%20happen?%0A%0A"
           target="_blank"
           rel="noopener noreferrer"
