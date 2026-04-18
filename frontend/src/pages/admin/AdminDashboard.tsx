@@ -461,35 +461,55 @@ function StudentsPanel() {
 function SubjectsPanel() {
   const [exams, setExams] = useState<any[]>([])
   const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState({ id: '', subject: '', date: '', startTime: '', endTime: '', branches: '' })
   const [loading, setLoading] = useState(false)
 
   const fetchExams = () => examsAPI.list().then(r => setExams(r.data)).catch(() => {})
   useEffect(() => { fetchExams() }, [])
 
-  const handleCreate = async () => {
+  const handleSave = async () => {
     const branches = form.branches.split(',').map(b => b.trim()).filter(Boolean)
     if (!form.id || !form.subject || !form.date || !form.startTime || !form.endTime || !branches.length) {
       toast.error('All fields required'); return
     }
     setLoading(true)
     try {
-      await examsAPI.create({ ...form, branches })
-      toast.success('Exam created!'); setShowForm(false); fetchExams()
+      if (editingId) {
+        await examsAPI.update(editingId, { ...form, branches })
+        toast.success('Exam updated!')
+      } else {
+        await examsAPI.create({ ...form, branches })
+        toast.success('Exam created!')
+      }
+      setShowForm(false); setEditingId(null); fetchExams()
     } catch (e: any) { toast.error(e?.response?.data?.error || 'Failed') }
     finally { setLoading(false) }
+  }
+
+  const handleEdit = (exam: any) => {
+    setForm({
+      id: exam.id,
+      subject: exam.subject,
+      date: new Date(exam.date).toISOString().slice(0, 10),
+      startTime: exam.startTime,
+      endTime: exam.endTime,
+      branches: exam.branches.join(', ')
+    })
+    setEditingId(exam.id)
+    setShowForm(true)
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div><h2 className="text-xl font-bold text-white font-display">Subjects & Exams</h2><p className="text-slate-500 text-sm">Manage exam schedules and branches</p></div>
-        <button onClick={() => setShowForm(s => !s)} className="btn-primary w-auto px-4 py-2 flex items-center gap-2 text-sm"><Plus size={16}/>{showForm?'Cancel':'Create Exam'}</button>
+        <button onClick={() => { setShowForm(!showForm); if (!showForm) { setEditingId(null); setForm({ id: '', subject: '', date: '', startTime: '', endTime: '', branches: '' }) } }} className="btn-primary w-auto px-4 py-2 flex items-center gap-2 text-sm"><Plus size={16}/>{showForm?'Cancel':'Create Exam'}</button>
       </div>
 
       {showForm && (
         <div className="glass-light rounded-2xl p-6 space-y-4 animate-slide-up">
-          <h3 className="font-semibold text-white text-sm">New Exam</h3>
+          <h3 className="font-semibold text-white text-sm">{editingId ? 'Edit Exam' : 'New Exam'}</h3>
           <div className="grid grid-cols-2 gap-4">
             <div><label className="text-xs text-slate-400 font-medium block mb-1.5">Subject Code</label><input className="form-input" placeholder="CS302" value={form.id} onChange={e => setForm(f=>({...f,id:e.target.value}))}/></div>
             <div><label className="text-xs text-slate-400 font-medium block mb-1.5">Subject Name</label><input className="form-input" placeholder="Data Structures" value={form.subject} onChange={e => setForm(f=>({...f,subject:e.target.value}))}/></div>
@@ -498,8 +518,8 @@ function SubjectsPanel() {
             <div><label className="text-xs text-slate-400 font-medium block mb-1.5">Start Time</label><input type="time" className="form-input" value={form.startTime} onChange={e => setForm(f=>({...f,startTime:e.target.value}))}/></div>
             <div><label className="text-xs text-slate-400 font-medium block mb-1.5">End Time</label><input type="time" className="form-input" value={form.endTime} onChange={e => setForm(f=>({...f,endTime:e.target.value}))}/></div>
           </div>
-          <button onClick={handleCreate} disabled={loading} className="btn-primary w-auto px-6 py-2.5 flex items-center gap-2 text-sm">
-            {loading ? <Loader2 size={15} className="animate-spin"/> : <><CheckCircle2 size={15}/>Save Exam</>}
+          <button onClick={handleSave} disabled={loading} className="btn-primary w-auto px-6 py-2.5 flex items-center gap-2 text-sm">
+            {loading ? <Loader2 size={15} className="animate-spin"/> : <><CheckCircle2 size={15}/>{editingId ? 'Update Exam' : 'Save Exam'}</>}
           </button>
         </div>
       )}
@@ -519,6 +539,8 @@ function SubjectsPanel() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <button onClick={() => handleEdit(e)}
+                  className="p-1.5 rounded-lg bg-white/5 hover:bg-brand-500/20 text-slate-400 hover:text-brand-400 transition-all"><Edit3 size={13}/></button>
                 <button onClick={async () => { await examsAPI.delete(e.id); fetchExams() }}
                   className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-all"><Trash2 size={13}/></button>
               </div>
@@ -658,6 +680,8 @@ function AllocationPanel() {
   const [rooms,       setRooms]       = useState<any[]>([])
   const [gridRoom,    setGridRoom]    = useState('')
   const [gridDate,    setGridDate]    = useState(() => new Date().toISOString().slice(0, 10))
+  const [gridStartTime, setGridStartTime] = useState('')
+  const [gridEndTime,   setGridEndTime]   = useState('')
   const [gridData,    setGridData]    = useState<any>(null)
   const [gridLoading, setGridLoading] = useState(false)
 
@@ -682,7 +706,7 @@ function AllocationPanel() {
     if (!gridRoom || !gridDate) { toast.error('Select a room and date'); return }
     setGridLoading(true); setGridData(null)
     try {
-      const res = await allocationAPI.gridByDate(gridRoom, gridDate)
+      const res = await allocationAPI.gridByDate(gridRoom, gridDate, gridStartTime || undefined, gridEndTime || undefined)
       setGridData(res.data)
       if (res.data.totalAllocated === 0)
         toast('No students allocated in this room on that date', { icon: 'ℹ️' })
@@ -694,7 +718,7 @@ function AllocationPanel() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-white font-display">Seat Allocation Engine</h2>
-        <p className="text-slate-500 text-sm">Run the anti-copy interleaving algorithm</p>
+        <p className="text-slate-500 text-sm">Allocate seats instantly</p>
       </div>
 
       {/* ── Section 1: Run allocation ───────────────────────────────── */}
@@ -706,15 +730,7 @@ function AllocationPanel() {
             {exams.map(e => <option key={e.id} value={e.id}>{e.subject} ({e.id}) — {new Date(e.date).toDateString()}</option>)}
           </select>
         </div>
-        <div className="p-4 glass-light rounded-xl text-sm text-slate-400 space-y-1.5">
-          <p className="font-medium text-slate-300 text-xs">Algorithm: Greedy Anti-Copy Interleaving</p>
-          <ul className="list-disc list-inside space-y-1 text-xs">
-            <li>Groups students by branch, picks branch with most remaining at each seat</li>
-            <li>Ensures no left or top neighbour shares the same branch code</li>
-            <li>Generates unique signed JWT QR token per seat (30 day expiry)</li>
-            <li>Incremental: re-running <span className="text-emerald-400">adds only unallocated students</span> — existing data preserved</li>
-          </ul>
-        </div>
+
         <button onClick={run} disabled={running} className="btn-primary flex items-center justify-center gap-2">
           {running ? <><Loader2 size={16} className="animate-spin"/>Allocating seats…</> : <><Zap size={16}/>Run Seat Allocation</>}
         </button>
@@ -752,6 +768,19 @@ function AllocationPanel() {
             <label className="text-xs text-slate-400 font-medium block mb-1.5">Exam Date</label>
             <input type="date" className="form-input py-2 text-sm" value={gridDate}
               onChange={e => { setGridDate(e.target.value); setGridData(null) }} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs text-slate-400 font-medium block mb-1.5">Start Time (optional)</label>
+            <input type="time" className="form-input py-2 text-sm" value={gridStartTime}
+              onChange={e => { setGridStartTime(e.target.value); setGridData(null) }} />
+          </div>
+          <div>
+            <label className="text-xs text-slate-400 font-medium block mb-1.5">End Time (optional)</label>
+            <input type="time" className="form-input py-2 text-sm" value={gridEndTime}
+              onChange={e => { setGridEndTime(e.target.value); setGridData(null) }} />
           </div>
         </div>
 

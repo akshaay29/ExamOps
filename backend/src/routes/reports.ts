@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express'
+import type { Prisma } from '@prisma/client'
 import { Parser } from 'json2csv'
 import prisma from '../lib/prisma'
+import { getSingleValue } from '../lib/http'
 import { verifyToken, requireRole } from '../middleware/auth'
 
 const router = Router()
@@ -18,7 +20,14 @@ type AllocationRow = {
   scannedAt: string
 }
 
-function toRow(a: any): AllocationRow {
+type AllocationWithStudentAndRoom = Prisma.SeatAllocationGetPayload<{
+  include: {
+    student: { include: { user: { select: { name: true } } } }
+    room: true
+  }
+}>
+
+function toRow(a: AllocationWithStudentAndRoom): AllocationRow {
   return {
     rollNo:    a.student?.rollNo   ?? '',
     name:      a.student?.user?.name ?? '',
@@ -38,7 +47,8 @@ function buildCsv(rows: AllocationRow[]): string {
 // ── GET /api/admin/reports/attendance/:examId ─────────────────────────────────
 router.get('/attendance/:examId', async (req: Request, res: Response): Promise<void> => {
   try {
-    const { examId } = req.params
+    const examId = getSingleValue(req.params.examId)
+    if (!examId) { res.status(400).json({ error: 'Exam id is required' }); return }
 
     const exam = await prisma.exam.findUnique({ where: { id: examId } })
     if (!exam) { res.status(404).json({ error: 'Exam not found' }); return }
@@ -50,7 +60,7 @@ router.get('/attendance/:examId', async (req: Request, res: Response): Promise<v
         room:    { select: { name: true, building: true } },
       },
       orderBy: [{ room: { name: 'asc' } }, { rowNo: 'asc' }, { colNo: 'asc' }],
-    })
+    }) as AllocationWithStudentAndRoom[]
 
     const total    = allocations.length
     const present  = allocations.filter(a => a.status === 'PRESENT').length
@@ -79,7 +89,8 @@ router.get('/attendance/:examId', async (req: Request, res: Response): Promise<v
 // ── GET /api/admin/reports/attendance/:examId/csv ─────────────────────────────
 router.get('/attendance/:examId/csv', async (req: Request, res: Response): Promise<void> => {
   try {
-    const { examId } = req.params
+    const examId = getSingleValue(req.params.examId)
+    if (!examId) { res.status(400).json({ error: 'Exam id is required' }); return }
 
     const exam = await prisma.exam.findUnique({ where: { id: examId } })
     if (!exam) { res.status(404).json({ error: 'Exam not found' }); return }
@@ -87,7 +98,7 @@ router.get('/attendance/:examId/csv', async (req: Request, res: Response): Promi
     const allocations = await prisma.seatAllocation.findMany({
       where: { examId },
       include: { student: { include: { user: { select: { name: true } } } }, room: true },
-    })
+    }) as AllocationWithStudentAndRoom[]
 
     const csv = buildCsv(allocations.map(toRow))
 

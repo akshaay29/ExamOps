@@ -1,18 +1,23 @@
 import { Router, Request, Response } from 'express'
+import type { Prisma } from '@prisma/client'
 import jwt from 'jsonwebtoken'
-import qrcode from 'qrcode'
 import prisma from '../lib/prisma'
+import { getSingleValue } from '../lib/http'
 import { verifyToken, requireRole } from '../middleware/auth'
 import { allocateSeats } from '../lib/seatingAlgorithm'
 
 const router = Router()
+type AllocationWithStudent = Prisma.SeatAllocationGetPayload<{
+  include: { student: { include: { user: { select: { name: true } } } } }
+}>
 
 // ── POST /api/admin/allocations/generate/:examId ──────────────────────────────
 // Admin: trigger allocation for an exam
 router.post('/generate/:examId',
   verifyToken, requireRole('ADMIN'),
   async (req: Request, res: Response): Promise<void> => {
-    const { examId } = req.params
+    const examId = getSingleValue(req.params.examId)
+    if (!examId) { res.status(400).json({ error: 'Exam id is required' }); return }
     const { force = false } = req.body  // force=true to overwrite
 
     // Guard: block allocation < 24h before exam unless forced
@@ -41,7 +46,9 @@ router.post('/generate/:examId',
     const existingOccupancy = await prisma.seatAllocation.findMany({
       where: { examId: { in: concurrentExamIds } },
       include: { student: { select: { branch: true } } }
-    })
+    }) as Prisma.SeatAllocationGetPayload<{
+      include: { student: { select: { branch: true } } }
+    }>[]
 
     const occupiedByRoom = new Map<string, Map<string, { count: number, branches: string[] }>>()
     for (const alloc of existingOccupancy) {
@@ -110,7 +117,9 @@ router.post('/generate/:examId',
 router.get('/grid/:examId/:roomId',
   verifyToken, requireRole('ADMIN'),
   async (req: Request, res: Response): Promise<void> => {
-    const { examId, roomId } = req.params
+    const examId = getSingleValue(req.params.examId)
+    const roomId = getSingleValue(req.params.roomId)
+    if (!examId || !roomId) { res.status(400).json({ error: 'examId and roomId are required' }); return }
     const room = await prisma.room.findUnique({ where: { id: roomId } })
     const exam = await prisma.exam.findUnique({ where: { id: examId } })
     if (!room || !exam) { res.status(404).json({ error: 'Room or Exam not found' }); return }
@@ -122,7 +131,7 @@ router.get('/grid/:examId/:roomId',
     const allocs = await prisma.seatAllocation.findMany({
       where: { roomId, examId: { in: concurrentExamIds } },
       include: { student: { include: { user: { select: { name: true } } } } }
-    })
+    }) as AllocationWithStudent[]
 
     const grid: (any[])[][] = Array.from(
       { length: room.rows },
@@ -147,14 +156,17 @@ router.get('/grid/:examId/:roomId',
   }
 )
 
-// ── GET /api/admin/allocations/grid-by-date/:roomId?date=YYYY-MM-DD ──────────
-// Admin: fetch ALL students in a room for every exam on a given date.
+// ── GET /api/admin/allocations/grid-by-date/:roomId?date=YYYY-MM-DD&startTime=HH:MM&endTime=HH:MM ──────────
+// Admin: fetch ALL students in a room for every exam on a given date and time period.
 // This is the incremental-aware endpoint used by the multi-branch grid viewer.
 router.get('/grid-by-date/:roomId',
   verifyToken, requireRole('ADMIN'),
   async (req: Request, res: Response): Promise<void> => {
-    const { roomId } = req.params
-    const dateStr = req.query.date as string | undefined
+    const roomId = getSingleValue(req.params.roomId)
+    const dateStr = getSingleValue(req.query.date as string | string[] | undefined)
+    const startTimeStr = getSingleValue(req.query.startTime as string | string[] | undefined)
+    const endTimeStr = getSingleValue(req.query.endTime as string | string[] | undefined)
+    if (!roomId) { res.status(400).json({ error: 'Room id is required' }); return }
 
     const room = await prisma.room.findUnique({ where: { id: roomId } })
     if (!room) { res.status(404).json({ error: 'Room not found' }); return }
@@ -168,9 +180,18 @@ router.get('/grid-by-date/:roomId',
       dateFilter = { gte: d, lt: next }
     }
 
-    // All exams on the chosen date (or all dates if none supplied)
+    // Build the time filter
+    let timeFilter: { gte: string; lte: string } | undefined
+    if (startTimeStr && endTimeStr) {
+      timeFilter = { gte: startTimeStr, lte: endTimeStr }
+    }
+
+    // All exams on the chosen date and time period
     const exams = await prisma.exam.findMany({
-      where: dateFilter ? { date: dateFilter } : undefined,
+      where: {
+        ...(dateFilter ? { date: dateFilter } : {}),
+        ...(timeFilter ? { startTime: timeFilter } : {})
+      },
       orderBy: { startTime: 'asc' },
     })
     const examIds = exams.map(e => e.id)
@@ -178,7 +199,7 @@ router.get('/grid-by-date/:roomId',
     const allocs = await prisma.seatAllocation.findMany({
       where: { roomId, ...(examIds.length ? { examId: { in: examIds } } : {}) },
       include: { student: { include: { user: { select: { name: true } } } } },
-    })
+    }) as AllocationWithStudent[]
 
     // Build 2-D grid; each cell is an array (supports cap-2 seats)
     const grid: (any[])[][] = Array.from(
@@ -217,10 +238,12 @@ router.get('/grid-by-date/:roomId',
 router.get('/summary/:examId',
   verifyToken, requireRole('ADMIN'),
   async (req: Request, res: Response) => {
-    const total = await prisma.seatAllocation.count({ where: { examId: req.params.examId } })
+    const examId = getSingleValue(req.params.examId)
+    if (!examId) { res.status(400).json({ error: 'Exam id is required' }); return }
+    const total = await prisma.seatAllocation.count({ where: { examId } })
     const byRoom = await prisma.seatAllocation.groupBy({
       by: ['roomId'],
-      where: { examId: req.params.examId },
+      where: { examId },
       _count: { _all: true }
     })
     res.json({ total, byRoom })

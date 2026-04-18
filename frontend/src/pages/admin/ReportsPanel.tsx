@@ -45,7 +45,7 @@ export default function ReportsPanel() {
     }).catch(() => setReport(null))
   }, [selected])
 
-  const handleExport = () => {
+  const handleExport = (_room?: string) => {
     if (!selected || !report) { toast.error('No report data to export'); return }
 
     try {
@@ -214,7 +214,7 @@ export default function ReportsPanel() {
           <p className="text-slate-500 text-sm">Post-exam analytics and export</p>
         </div>
         <button
-          onClick={handleExport}
+          onClick={() => handleExport()}
           disabled={!selected || !report}
           className="btn-primary w-auto px-4 py-2 flex items-center gap-2 text-sm"
         >

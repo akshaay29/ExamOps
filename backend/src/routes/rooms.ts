@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import multer from 'multer'
 import { parse } from 'csv-parse/sync'
 import prisma from '../lib/prisma'
+import { getSingleValue } from '../lib/http'
 import { verifyToken, requireRole } from '../middleware/auth'
 
 const router = Router()
@@ -66,9 +67,11 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
 // PUT /api/admin/rooms/:id
 router.put('/:id', async (req: Request, res: Response): Promise<void> => {
   const { name, building, rows, seatsPerRow } = req.body
+  const roomId = getSingleValue(req.params.id)
+  if (!roomId) { res.status(400).json({ error: 'Room id is required' }); return }
   try {
     const room = await prisma.room.update({
-      where: { id: req.params.id },
+      where: { id: roomId },
       data: { name, building, rows: Number(rows), seatsPerRow: Number(seatsPerRow), capacity: rows * seatsPerRow }
     })
     res.json(room)
@@ -79,7 +82,9 @@ router.put('/:id', async (req: Request, res: Response): Promise<void> => {
 
 // DELETE /api/admin/rooms/:id
 router.delete('/:id', async (req: Request, res: Response) => {
-  await prisma.room.delete({ where: { id: req.params.id } }).catch(() => null)
+  const roomId = getSingleValue(req.params.id)
+  if (!roomId) { res.status(400).json({ error: 'Room id is required' }); return }
+  await prisma.room.delete({ where: { id: roomId } }).catch(() => null)
   res.json({ deleted: true })
 })
 
