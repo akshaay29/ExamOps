@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Building2, Users, BookOpen, Grid3X3,
   BarChart3, Upload, Plus, Settings, LogOut, ChevronRight,
   FileSpreadsheet, Zap, CheckCircle2, AlertCircle, X, Loader2,
-  TableProperties, Edit3, Trash2, RefreshCw, Download
+  TableProperties, Edit3, Trash2, RefreshCw, Download, Menu
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { roomsAPI, studentsAPI, examsAPI, allocationAPI, reportsAPI } from '../../lib/api'
@@ -126,36 +126,45 @@ function SeatCapacityGrid({ grid, setGrid }: { grid: number[][]; setGrid: React.
 }
 
 // ── Sidebar ────────────────────────────────────────────────────────────────────
-function Sidebar({ active, setActive }: { active: NavId; setActive: (id: NavId) => void }) {
+function Sidebar({ active, setActive, isOpen, setIsOpen }: { active: NavId; setActive: (id: NavId) => void; isOpen: boolean; setIsOpen: (v: boolean) => void }) {
   const navigate = useNavigate()
   const { logout } = useAuth()
   return (
-    <aside className="w-64 min-h-screen bg-surface-card border-r border-surface-border flex flex-col shrink-0">
-      <div className="p-6 border-b border-surface-border flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-brand-600/30 border border-brand-500/30 flex items-center justify-center">
-          <BookOpen size={18} className="text-brand-400" />
+    <>
+      {isOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsOpen(false)} />}
+      <aside className={`fixed md:sticky top-0 left-0 z-50 h-screen transition-all duration-300 bg-surface-card border-r border-surface-border flex flex-col shrink-0
+        ${isOpen ? 'w-64 translate-x-0' : '-translate-x-full md:translate-x-0 md:w-20 w-64'}`}>
+        <div className="p-4 md:p-6 border-b border-surface-border flex items-center gap-3 overflow-hidden">
+          <div className="w-9 h-9 rounded-xl bg-brand-600/30 border border-brand-500/30 flex items-center justify-center shrink-0">
+            <BookOpen size={18} className="text-brand-400" />
+          </div>
+          <div className={`flex items-center gap-2 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-100 md:opacity-0'}`}>
+            <span className="font-display text-lg font-bold text-white whitespace-nowrap">ExamOps</span>
+            <span className="chip bg-brand-600/20 text-brand-400 text-[10px] border border-brand-500/30">Admin</span>
+          </div>
         </div>
-        <span className="font-display text-lg font-bold text-white">ExamOps</span>
-        <span className="chip bg-brand-600/20 text-brand-400 text-[10px] border border-brand-500/30 ml-auto">Admin</span>
-      </div>
-      <nav className="flex-1 p-4 space-y-1">
-        {NAV.map(item => (
-          <button key={item.id} onClick={() => setActive(item.id)}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-              ${active === item.id ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30' : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'}`}>
-            <item.icon size={17} />{item.label}
-            {active === item.id && <ChevronRight size={14} className="ml-auto" />}
+        <nav className="flex-1 p-3 md:p-4 space-y-1 overflow-x-hidden overflow-y-auto scrollbar-hide">
+          {NAV.map(item => (
+            <button key={item.id} onClick={() => { setActive(item.id); window.innerWidth < 768 && setIsOpen(false); }}
+              title={item.label}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap
+                ${active === item.id ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30' : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'}`}>
+              <item.icon size={17} className="shrink-0" />
+              <span className={`transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-100 md:opacity-0'}`}>{item.label}</span>
+              {active === item.id && isOpen && <ChevronRight size={14} className="ml-auto shrink-0" />}
+            </button>
+          ))}
+        </nav>
+        <div className="p-3 md:p-4 border-t border-surface-border space-y-1 overflow-hidden">
+          <button onClick={() => { logout(); navigate('/login') }}
+            title="Sign Out"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-all whitespace-nowrap">
+            <LogOut size={17} className="shrink-0" />
+            <span className={`transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-100 md:opacity-0'}`}>Sign Out</span>
           </button>
-        ))}
-      </nav>
-      <div className="p-4 border-t border-surface-border space-y-1">
-
-        <button onClick={() => { logout(); navigate('/login') }}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-all">
-          <LogOut size={17}/>Sign Out
-        </button>
-      </div>
-    </aside>
+        </div>
+      </aside>
+    </>
   )
 }
 
@@ -808,6 +817,7 @@ function AllocationPanel() {
 // ── Main ───────────────────────────────────────────────────────────────────────
 export default function AdminDashboard() {
   const [active, setActive] = useState<NavId>('dashboard')
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768)
 
   const panels: Record<NavId, React.ReactNode> = {
     dashboard:  <DashboardPanel setActive={setActive} />,
@@ -819,9 +829,14 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="bg-mesh min-h-screen flex">
-      <Sidebar active={active} setActive={setActive} />
-      <main className="flex-1 p-8 overflow-y-auto scrollbar-hide">
+    <div className="bg-mesh min-h-screen flex w-full overflow-hidden">
+      <Sidebar active={active} setActive={setActive} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      <main className="flex-1 p-4 md:p-8 h-screen overflow-y-auto scrollbar-hide flex flex-col w-full">
+        <div className="flex items-center mb-6">
+          <button onClick={() => setIsSidebarOpen(o => !o)} className="p-2 rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 hover:text-white transition-all mr-4">
+            <Menu size={20} />
+          </button>
+        </div>
         {panels[active]}
       </main>
     </div>
