@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState } from 'react'
+import type { ReactNode } from 'react'
 
 // Exported as a plain object so it works at runtime (no type-only export issue)
 export const ROLES = {

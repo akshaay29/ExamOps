@@ -61,9 +61,12 @@
   /* Form input */
   .form-input {
     @apply w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10
-           text-slate-200 placeholder-slate-500 text-sm
+           text-black placeholder-slate-500 text-sm
            focus:outline-none focus:border-brand-500 focus:ring-2
            focus:ring-brand-500/20 transition-all duration-200;
+  }
+  .form-input option {
+    @apply text-slate-900 bg-white;
   }
 
   /* Gradient button */

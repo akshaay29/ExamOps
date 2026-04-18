@@ -1,9 +1,14 @@
 import { Router, Request, Response } from 'express'
+import type { Prisma } from '@prisma/client'
 import jwt from 'jsonwebtoken'
 import prisma from '../lib/prisma'
+import { getSingleValue } from '../lib/http'
 import { verifyToken, requireRole } from '../middleware/auth'
 
 const router = Router()
+type AllocationWithStudent = Prisma.SeatAllocationGetPayload<{
+  include: { student: { include: { user: { select: { name: true } } } } }
+}>
 
 // ── GET /api/invigilator/attendance/room/:roomId/:examId ──────────────────────
 // Invigilator: view all students in their assigned room
@@ -11,7 +16,9 @@ router.get('/room/:roomId/:examId',
   verifyToken, requireRole('INVIGILATOR'),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { roomId, examId } = req.params
+      const roomId = getSingleValue(req.params.roomId)
+      const examId = getSingleValue(req.params.examId)
+      if (!roomId || !examId) { res.status(400).json({ error: 'roomId and examId are required' }); return }
       const allocations = await prisma.seatAllocation.findMany({
         where: { roomId, examId },
         include: {
@@ -20,7 +27,7 @@ router.get('/room/:roomId/:examId',
           }
         },
         orderBy: [{ rowNo: 'asc' }, { colNo: 'asc' }]
-      })
+      }) as AllocationWithStudent[]
 
       res.json(allocations.map(a => ({
         id: a.id,
@@ -50,7 +57,7 @@ router.post('/scan',
       if (!qrToken) { res.status(400).json({ error: 'qrToken required' }); return }
 
       const cleanToken = qrToken.toString().trim()
-      let alloc;
+      let alloc: AllocationWithStudent | null = null
 
       // Ensure backward compatibility: Check if token is a standard encoded JWT
       if (cleanToken.startsWith('eyJ')) {

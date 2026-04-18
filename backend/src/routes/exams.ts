@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express'
 import prisma from '../lib/prisma'
+import { getSingleValue } from '../lib/http'
 import { verifyToken, requireRole } from '../middleware/auth'
 
 const router = Router()
@@ -39,9 +40,11 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
 router.put('/:id', async (req: Request, res: Response): Promise<void> => {
   const { subject, date, startTime, endTime, branches } = req.body
   const parsedBranches = parseBranches(branches)
+  const examId = getSingleValue(req.params.id)
+  if (!examId) { res.status(400).json({ error: 'Exam id is required' }); return }
   try {
     const exam = await prisma.exam.update({
-      where: { id: req.params.id },
+      where: { id: examId },
       data: { subject, date: new Date(date), startTime, endTime, branches: parsedBranches }
     })
     res.json(exam)
@@ -52,7 +55,9 @@ router.put('/:id', async (req: Request, res: Response): Promise<void> => {
 
 // DELETE /api/admin/exams/:id
 router.delete('/:id', async (req: Request, res: Response) => {
-  await prisma.exam.delete({ where: { id: req.params.id } }).catch(() => null)
+  const examId = getSingleValue(req.params.id)
+  if (!examId) { res.status(400).json({ error: 'Exam id is required' }); return }
+  await prisma.exam.delete({ where: { id: examId } }).catch(() => null)
   res.json({ deleted: true })
 })
 

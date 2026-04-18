@@ -3,6 +3,7 @@ import multer from 'multer'
 import { parse } from 'csv-parse/sync'
 import bcrypt from 'bcrypt'
 import prisma from '../lib/prisma'
+import { getSingleValue } from '../lib/http'
 import { verifyToken, requireRole } from '../middleware/auth'
 
 const router = Router()
@@ -94,7 +95,9 @@ router.delete('/all', async (_req: Request, res: Response) => {
 // DELETE /api/admin/students/:id
 router.delete('/:id', async (req: Request, res: Response): Promise<void> => {
   try {
-    const profile = await prisma.studentProfile.findUnique({ where: { id: req.params.id } })
+    const studentId = getSingleValue(req.params.id)
+    if (!studentId) { res.status(400).json({ error: 'Student id is required' }); return }
+    const profile = await prisma.studentProfile.findUnique({ where: { id: studentId } })
     if (!profile) {
       res.status(404).json({ error: 'Student not found' })
       return

@@ -7,6 +7,8 @@ import { PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 
+type CsvRow = Record<string, string>;
+
 // Lazy singleton \u2014 created once on first import, AFTER dotenv has loaded
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -15,7 +17,7 @@ const prisma = new PrismaClient({ adapter });
 async function loadData() {
   console.log('Loading students...');
   const studentsCsv = fs.readFileSync(path.join(__dirname, '../../students.csv'), 'utf-8');
-  const studentsRecords = parse(studentsCsv, { columns: true, trim: true, skip_empty_lines: true });
+  const studentsRecords = parse(studentsCsv, { columns: true, trim: true, skip_empty_lines: true }) as CsvRow[];
 
   let studentsCreated = 0;
   for (const row of studentsRecords) {
@@ -53,7 +55,7 @@ async function loadData() {
 
   console.log('Loading rooms...');
   const roomsCsv = fs.readFileSync(path.join(__dirname, '../../room.csv'), 'utf-8');
-  const roomsRecords = parse(roomsCsv, { columns: true, trim: true, skip_empty_lines: true });
+  const roomsRecords = parse(roomsCsv, { columns: true, trim: true, skip_empty_lines: true }) as CsvRow[];
 
   let roomsCreated = 0;
   for (const row of roomsRecords) {

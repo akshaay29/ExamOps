@@ -107,6 +107,43 @@ npm run dev
 
 Visit `http://localhost:5173` to experience the platform. 
 
+## Deployment
+
+This project is easiest to deploy as:
+
+- `frontend/` on Vercel or Netlify
+- `backend/` on Render, Railway, or a VPS
+- PostgreSQL on Neon, Supabase, Render Postgres, or Railway
+
+### Recommended Production Setup
+
+1. Deploy a PostgreSQL database and copy its connection string into `backend/.env`.
+2. Deploy the backend as a Node service from the `backend/` folder.
+3. Set backend environment variables:
+   - `DATABASE_URL`
+   - `JWT_SECRET`
+   - `PORT`
+   - `FRONTEND_URL`
+   - `SMTP_HOST`
+   - `SMTP_PORT`
+   - `SMTP_USER`
+   - `SMTP_PASS`
+4. Use these backend service commands:
+   - Build: `npm run build`
+   - Start: `npm start`
+5. Run database migrations before first use:
+   - `npx prisma migrate deploy`
+   - If you are not using migrations yet, `npx prisma db push` also works, but `migrate deploy` is safer for production.
+6. Deploy the frontend from the `frontend/` folder.
+7. Set `VITE_API_URL` in the frontend environment to your live backend URL, for example `https://api.yourdomain.com`.
+
+### Hosting Notes
+
+- `FRONTEND_URL` on the backend must exactly match your deployed frontend origin, otherwise CORS and magic-link redirects will fail.
+- OTP and magic-link login require working SMTP credentials in production.
+- The frontend is a static build, so the output of `npm run build` in `frontend/` can be served by any CDN/static host.
+- The backend exposes a health endpoint at `/health`, which is useful for uptime checks and deployment verification.
+
 ## 🛡️ License
 
 Built with ❤️ by [Akshay Gupta](https://www.linkedin.com/in/akshaygupta2905/).

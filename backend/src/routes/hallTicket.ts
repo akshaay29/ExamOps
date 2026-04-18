@@ -1,10 +1,15 @@
 import { Router, Request, Response } from 'express'
+import type { Prisma } from '@prisma/client'
 import PDFDocument from 'pdfkit'
 import QRCode from 'qrcode'
 import prisma from '../lib/prisma'
+import { getSingleValue } from '../lib/http'
 import { verifyToken, requireRole } from '../middleware/auth'
 
 const router = Router()
+type AllocationWithExamAndRoom = Prisma.SeatAllocationGetPayload<{
+  include: { exam: true, room: true }
+}>
 
 // ── GET /api/student/hall-ticket/:examId  (JSON metadata) ─────────────────────
 router.get('/:examId',
@@ -12,7 +17,8 @@ router.get('/:examId',
   async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = req.user!.userId
-      const examId = req.params.examId
+      const examId = getSingleValue(req.params.examId)
+      if (!examId) { res.status(400).json({ error: 'Exam id is required' }); return }
 
       const profile = await prisma.studentProfile.findUnique({
         where: { userId },
@@ -23,7 +29,7 @@ router.get('/:examId',
       const alloc = await prisma.seatAllocation.findFirst({
         where: { studentId: profile.id, examId },
         include: { exam: true, room: true }
-      })
+      }) as AllocationWithExamAndRoom | null
       if (!alloc) { res.status(404).json({ error: 'Seating not yet assigned for this exam' }); return }
 
       const qrDataUrl = await QRCode.toDataURL(alloc.id, { errorCorrectionLevel: 'H', margin: 2 })
@@ -47,7 +53,8 @@ router.get('/:examId/pdf',
   async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = req.user!.userId
-      const { examId } = req.params
+      const examId = getSingleValue(req.params.examId)
+      if (!examId) { res.status(400).json({ error: 'Exam id is required' }); return }
 
       const profile = await prisma.studentProfile.findUnique({
         where: { userId },
@@ -58,7 +65,7 @@ router.get('/:examId/pdf',
       const alloc = await prisma.seatAllocation.findFirst({
         where: { studentId: profile.id, examId },
         include: { exam: true, room: true }
-      })
+      }) as AllocationWithExamAndRoom | null
       if (!alloc) { res.status(404).json({ error: 'Seating not yet assigned for this exam' }); return }
 
       // Generate QR PNG buffer using simplified ID

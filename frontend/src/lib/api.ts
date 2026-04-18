@@ -63,9 +63,9 @@ export const allocationAPI = {
     api.post(`/api/admin/allocations/generate/${examId}`, { force }),
   grid:    (examId: string, roomId: string) =>
     api.get(`/api/admin/allocations/grid/${examId}/${roomId}`),
-  /** Fetch ALL allocations for a room on a specific date (all branches combined). */
-  gridByDate: (roomId: string, date: string) =>
-    api.get(`/api/admin/allocations/grid-by-date/${roomId}`, { params: { date } }),
+  /** Fetch ALL allocations for a room on a specific date and time period (all branches combined). */
+  gridByDate: (roomId: string, date: string, startTime?: string, endTime?: string) =>
+    api.get(`/api/admin/allocations/grid-by-date/${roomId}`, { params: { date, startTime, endTime } }),
   summary: (examId: string) =>
     api.get(`/api/admin/allocations/summary/${examId}`),
 }
