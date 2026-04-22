@@ -199,10 +199,10 @@ router.post('/magic-link', async (req: Request, res: Response): Promise<void> =>
       `
     })
 
-    res.json({ message: 'Magic link sent successfully' })
+    res.json({ message: 'Verification link sent successfully' })
   } catch (error) {
     console.error('Magic link error:', error)
-    res.status(500).json({ error: 'Failed to send magic link' })
+    res.status(500).json({ error: 'Failed to send verification link' })
   }
 })
 

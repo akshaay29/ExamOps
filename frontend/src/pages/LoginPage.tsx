@@ -65,9 +65,9 @@ function AdminForm() {
     setSending(true)
     try {
       await authAPI.magicLink({ email: form.email })
-      toast.success('Magic link sent to your email!')
+      toast.success('Verification link sent to your email!')
     } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to send magic link')
+      toast.error(err.response?.data?.error || 'Failed to send verification link')
     } finally {
       setSending(false)
     }
@@ -160,9 +160,9 @@ function InvigilatorForm() {
     setSending(true)
     try {
       await authAPI.magicLink({ email: form.email })
-      toast.success('Magic link sent to your email!')
+      toast.success('Verification link sent to your email!')
     } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to send magic link')
+      toast.error(err.response?.data?.error || 'Failed to send verification link')
     } finally {
       setSending(false)
     }
