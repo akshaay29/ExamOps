@@ -79,9 +79,6 @@ function AdminForm() {
         <label className="text-xs text-slate-400 font-medium block mb-1.5">Email Address</label>
         <input id="admin-email" type="email" className="form-input" placeholder="admin@college.edu" value={form.email} onChange={set('email')} required />
       </div>
-      <div className="glass-light rounded-xl p-2.5 text-[11px] text-slate-500 font-mono">
-        Demo: guptaakshay798@gmail.com
-      </div>
       <button type="submit" disabled={sending} className="btn-primary flex items-center justify-center gap-2"
         style={{ background: 'linear-gradient(135deg,#3b5bf5,#4f46e5)' }}>
         {sending ? <Loader2 size={16} className="animate-spin" /> : <><span>Login</span><ArrowRight size={16} /></>}
@@ -173,9 +170,6 @@ function InvigilatorForm() {
       <div>
         <label className="text-xs text-slate-400 font-medium block mb-1.5">Email Address</label>
         <input id="inv-email" type="email" className="form-input" placeholder="staff@college.edu" value={form.email} onChange={set('email')} required />
-      </div>
-      <div className="glass-light rounded-xl p-2.5 text-[11px] text-slate-500 font-mono">
-        Demo: ak129gp@gmail.com
       </div>
       <button type="submit" disabled={sending} className="btn-primary flex items-center justify-center gap-2"
         style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
