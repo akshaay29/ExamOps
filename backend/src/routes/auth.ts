@@ -10,6 +10,21 @@ function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString()
 }
 
+/** Create a reusable SMTP transporter from env vars */
+function createTransporter() {
+  const smtpPort = Number(process.env.SMTP_PORT) || 465
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: smtpPort,
+    secure: smtpPort === 465, // true for 465 (SSL), false for 587 (STARTTLS)
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+    tls: { rejectUnauthorized: false }, // allow self-signed certs on some hosts
+  })
+}
+
 // ─── POST /api/auth/send-otp ──────────────────────────────────────────────────
 router.post('/send-otp', async (req: Request, res: Response): Promise<void> => {
   const { rollNo } = req.body
@@ -29,38 +44,31 @@ router.post('/send-otp', async (req: Request, res: Response): Promise<void> => {
       data: { otp, otpExpiry }
     })
 
+    // Send OTP email — failure does NOT block the response (OTP is saved to DB)
     try {
-      const smtpHost = process.env.SMTP_HOST
-      const smtpPort = Number(process.env.SMTP_PORT) || 465
+      const smtpUser = process.env.SMTP_USER
+      console.log(`[OTP-SMTP] Connecting to ${process.env.SMTP_HOST}:${process.env.SMTP_PORT} as ${smtpUser}`)
 
-      console.log(`[SMTP-DEBUG] Attempting connection to Host: ${smtpHost} | Port: ${smtpPort}`)
-
-      const transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: smtpPort,
-        secure: true,
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS
-        }
-      })
+      const transporter = createTransporter()
       await transporter.sendMail({
-        from: `"ExamOps" <${process.env.SMTP_USER}>`,
+        from: `"ExamOps" <${smtpUser}>`,
         to: profile.user.email,
         subject: 'ExamOps: Your Login OTP',
         html: `
-          <div style="font-family: sans-serif; text-align: center; padding: 20px; color: #1e2240;">
-            <h2 style="margin-bottom: 10px;">ExamOps Login</h2>
-            <p style="margin-bottom: 20px; font-size: 16px;">Here is your One-Time Password for accessing your Hall Ticket:</p>
-            <div style="font-size: 36px; font-weight: bold; letter-spacing: 6px; padding: 15px 30px; background: #f3f4f6; color: #10b981; display: inline-block; border-radius: 12px; border: 1px solid #e5e7eb;">
+          <div style="font-family: sans-serif; text-align: center; padding: 40px 20px; background: #0f172a; color: #f1f5f9;">
+            <h2 style="margin-bottom: 8px; color: #ffffff; font-size: 24px;">ExamOps Login</h2>
+            <p style="margin-bottom: 28px; font-size: 15px; color: #94a3b8;">Your One-Time Password for accessing your Hall Ticket:</p>
+            <div style="font-size: 40px; font-weight: bold; letter-spacing: 10px; padding: 18px 36px; background: #1e293b; color: #10b981; display: inline-block; border-radius: 14px; border: 1px solid #334155;">
               ${otp}
             </div>
-            <p style="color: #6b7280; font-size: 14px; margin-top: 25px;">This OTP is valid for <strong>10 minutes</strong>. Do not share it with anyone.</p>
+            <p style="color: #64748b; font-size: 13px; margin-top: 28px;">This OTP expires in <strong style="color: #f1f5f9;">10 minutes</strong>. Do not share it with anyone.</p>
           </div>
         `
       })
-    } catch (mailError) {
-      console.error('Failed to send email:', mailError)
+      console.log(`[OTP-SMTP] OTP email sent successfully to ${profile.user.email}`)
+    } catch (mailError: any) {
+      console.error('[OTP-SMTP] Failed to send OTP email:', mailError?.message || mailError)
+      // Don't block login — OTP is saved in DB, student can still enter it
     }
 
     res.json({ message: 'OTP sent successfully' })
@@ -104,7 +112,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    // Admin / Invigilator auth: email + password
+    // Admin / Invigilator auth: email + password (no longer used for Admin, kept for invigilator fallback)
     const user = await prisma.user.findUnique({ where: { email } })
     if (!user || user.role !== role) { res.status(401).json({ error: 'Invalid credentials' }); return }
 
@@ -140,66 +148,66 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
 })
 
 // ─── POST /api/auth/magic-link ────────────────────────────────────────────────
+// Sends a one-time verification link to Admin or Invigilator email via SMTP
 router.post('/magic-link', async (req: Request, res: Response): Promise<void> => {
   const { email } = req.body
-  console.log(`[MAGIC-LINK] Request initiated for email: "${email}"`)
+  console.log(`[MAGIC-LINK] Request for email: "${email}"`)
+
   try {
     const user = await prisma.user.findUnique({ where: { email } })
     if (!user) {
-      console.log(`[MAGIC-LINK] Error: User not found in database for email: "${email}"`)
+      console.log(`[MAGIC-LINK] User not found: "${email}"`)
       res.status(404).json({ error: 'User not found' })
       return
     }
 
-    console.log(`[MAGIC-LINK] Found user: ${user.id} with role: ${user.role}`)
-
     if (user.role !== 'ADMIN' && user.role !== 'INVIGILATOR') {
-      console.log(`[MAGIC-LINK] Error: Role ${user.role} is not permitted for magic links.`)
       res.status(403).json({ error: 'Magic link is only available for Admin and Invigilator' })
       return
     }
 
-    console.log(`[MAGIC-LINK] Generating JWT token...`)
-
-    const token = jwt.sign(
+    // Generate a short-lived JWT magic token
+    const magicToken = jwt.sign(
       { userId: user.id, email: user.email, magicAuth: true, role: user.role },
       process.env.JWT_SECRET!,
       { expiresIn: '10m' }
     )
 
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
-    const magicLinkUrl = `${frontendUrl}/auth/callback?token=${token}`
+    const magicLinkUrl = `${frontendUrl}/auth/callback?token=${magicToken}`
 
-    const smtpHost = process.env.SMTP_HOST
-    const smtpPort = Number(process.env.SMTP_PORT) || 465
+    console.log(`[MAGIC-LINK] Sending verification email to ${user.email} via ${process.env.SMTP_HOST}:${process.env.SMTP_PORT}`)
 
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: true,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
-    })
+    try {
+      const smtpUser = process.env.SMTP_USER
+      const transporter = createTransporter()
 
-    await transporter.sendMail({
-      from: `"ExamOps" <${process.env.SMTP_USER}>`,
-      to: user.email!,
-      subject: 'ExamOps: Magic Login Link',
-      html: `
-        <div style="font-family: sans-serif; text-align: center; padding: 20px; color: #1e2240;">
-          <h2 style="margin-bottom: 10px;">ExamOps Login</h2>
-          <p style="margin-bottom: 20px; font-size: 16px;">Click the button below to securely login to your account. This link is valid for 10 minutes.</p>
-          <a href="${magicLinkUrl}" style="display: inline-block; padding: 12px 24px; background: #3b5bf5; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
-            Login to ExamOps
-          </a>
-          <p style="color: #6b7280; font-size: 12px; margin-top: 25px;">If you didn't request this, you can safely ignore this email.</p>
-        </div>
-      `
-    })
+      await transporter.sendMail({
+        from: `"ExamOps" <${smtpUser}>`,
+        to: user.email!,
+        subject: 'ExamOps: Your Verification Link',
+        html: `
+          <div style="font-family: sans-serif; text-align: center; padding: 40px 20px; background: #0f172a; color: #f1f5f9;">
+            <h2 style="margin-bottom: 8px; color: #ffffff; font-size: 24px;">ExamOps Secure Login</h2>
+            <p style="margin-bottom: 28px; font-size: 15px; color: #94a3b8;">Click the button below to securely log in. This link expires in <strong style="color: #f1f5f9;">10 minutes</strong>.</p>
+            <a href="${magicLinkUrl}" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #3b5bf5, #4f46e5); color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 16px; letter-spacing: 0.3px;">
+              ✓ Login to ExamOps
+            </a>
+            <p style="margin-top: 24px; font-size: 12px; color: #475569;">Or copy this link into your browser:</p>
+            <p style="font-size: 11px; color: #334155; word-break: break-all; margin: 8px auto; max-width: 480px;">${magicLinkUrl}</p>
+            <p style="color: #475569; font-size: 12px; margin-top: 28px;">If you didn't request this, you can safely ignore this email.</p>
+          </div>
+        `
+      })
 
-    res.json({ message: 'Verification link sent successfully' })
+      console.log(`[MAGIC-LINK] Email sent successfully to ${user.email}`)
+      res.json({ message: 'Verification link sent successfully' })
+    } catch (smtpError: any) {
+      console.error('[MAGIC-LINK] SMTP error:', smtpError?.message || smtpError)
+      res.status(500).json({
+        error: `Failed to send verification email: ${smtpError?.message || 'SMTP error'}. Check server SMTP configuration.`
+      })
+    }
   } catch (error) {
     console.error('Magic link error:', error)
     res.status(500).json({ error: 'Failed to send verification link' })
@@ -207,6 +215,7 @@ router.post('/magic-link', async (req: Request, res: Response): Promise<void> =>
 })
 
 // ─── GET /api/auth/verify-link ────────────────────────────────────────────────
+// Called by the frontend /auth/callback page after user clicks the email link
 router.get('/verify-link', async (req: Request, res: Response): Promise<void> => {
   const { token } = req.query
   if (!token || typeof token !== 'string') { res.status(400).json({ error: 'Token is required' }); return }
@@ -218,6 +227,7 @@ router.get('/verify-link', async (req: Request, res: Response): Promise<void> =>
     const user = await prisma.user.findUnique({ where: { id: decoded.userId } })
     if (!user) { res.status(404).json({ error: 'User not found' }); return }
 
+    // Issue a full session token
     const sessionToken = jwt.sign(
       { userId: user.id, role: user.role },
       process.env.JWT_SECRET!,
