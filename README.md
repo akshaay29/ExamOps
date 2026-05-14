@@ -38,7 +38,7 @@
 - **Runtime & Server:** Node.js, Express.js (TypeScript)
 - **Database Architecture:** PostgreSQL 
 - **ORM:** Prisma
-- **Auth & Secure Delivery:** JSON Web Tokens (JWT), Nodemailer (SMTP), Bcrypt
+- **Auth & Secure Delivery:** JSON Web Tokens (JWT), Brevo Transactional Email API, Nodemailer local SMTP fallback, Bcrypt
 - **Algorithms:** Custom graph-coloring/cycle-based spatial layout algorithms
 
 ---
@@ -73,7 +73,12 @@ JWT_SECRET="your_highly_secure_jwt_secret"
 PORT=8000
 FRONTEND_URL="http://localhost:5173"
 
-# For OTP / Magic Links
+# For OTP / Magic Links in production
+BREVO_API_KEY="xkeysib-xxxxxxxxxxxxxxxx"
+BREVO_SENDER_EMAIL="your_verified_email@gmail.com"
+BREVO_SENDER_NAME="ExamOps"
+
+# Optional local SMTP fallback when BREVO_API_KEY is not set
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=465
 SMTP_USER=your_email@gmail.com
@@ -124,10 +129,10 @@ This project is easiest to deploy as:
    - `JWT_SECRET`
    - `PORT`
    - `FRONTEND_URL`
-   - `SMTP_HOST`
-   - `SMTP_PORT`
-   - `SMTP_USER`
-   - `SMTP_PASS`
+   - `BREVO_API_KEY`
+   - `BREVO_SENDER_EMAIL`
+   - `BREVO_SENDER_NAME`
+   - optional local-only SMTP fallback: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`
 4. Use these backend service commands:
    - Build: `npm run build`
    - Start: `npm start`
@@ -140,7 +145,8 @@ This project is easiest to deploy as:
 ### Hosting Notes
 
 - `FRONTEND_URL` on the backend must exactly match your deployed frontend origin, otherwise CORS and magic-link redirects will fail.
-- OTP and magic-link login require working SMTP credentials in production.
+- OTP and magic-link login use Brevo's HTTPS transactional email API in production, so Render's blocked SMTP ports are not involved.
+- `BREVO_SENDER_EMAIL` must be a sender verified in Brevo; otherwise Brevo will reject the request.
 - The frontend is a static build, so the output of `npm run build` in `frontend/` can be served by any CDN/static host.
 - The backend exposes a health endpoint at `/health`, which is useful for uptime checks and deployment verification.
 

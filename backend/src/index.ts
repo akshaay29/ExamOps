@@ -1,3 +1,8 @@
+import dns from 'dns'
+// Force Node.js to resolve DNS to IPv4 first.
+// Render does not support outbound IPv6 for SMTP, causing ENETUNREACH.
+dns.setDefaultResultOrder('ipv4first')
+
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'

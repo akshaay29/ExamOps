@@ -3,6 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const dns_1 = __importDefault(require("dns"));
+// Force Node.js to resolve DNS to IPv4 first.
+// Render does not support outbound IPv6 for SMTP, causing ENETUNREACH.
+dns_1.default.setDefaultResultOrder('ipv4first');
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
