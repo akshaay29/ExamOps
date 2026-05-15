@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import nodemailer from 'nodemailer'
+
 import prisma from '../lib/prisma'
 
 const router = Router()
@@ -16,86 +16,44 @@ type BrevoResponse = {
   code?: string
 }
 
-// Production uses Brevo's HTTPS API so Render does not need outbound SMTP ports.
-// Local development can still fall back to SMTP when BREVO_API_KEY is not set.
-
 async function sendEmail(to: string, subject: string, html: string) {
   const brevoKey = process.env.BREVO_API_KEY
+  const senderEmail = process.env.BREVO_SENDER_EMAIL || 'no-reply@examops.com'
+  const senderName = process.env.BREVO_SENDER_NAME || 'ExamOps'
 
-  if (brevoKey) {
-    // Brevo transactional email API.
-    const senderEmail = process.env.BREVO_SENDER_EMAIL || process.env.SMTP_USER
-    const senderName = process.env.BREVO_SENDER_NAME || 'ExamOps'
-
-    if (!senderEmail) {
-      throw new Error('BREVO_SENDER_EMAIL must be set to a verified Brevo sender email')
-    }
-
-    console.log(`[EMAIL] Sending via Brevo to: ${to}`)
-
-    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: {
-        'accept': 'application/json',
-        'content-type': 'application/json',
-        'api-key': brevoKey
-      },
-      body: JSON.stringify({
-        sender: { name: senderName, email: senderEmail },
-        to: [{ email: to }],
-        subject,
-        htmlContent: html
-      })
-    })
-
-    const result = await response.json().catch(async () => {
-      const text = await response.text().catch(() => '')
-      return { message: text || response.statusText }
-    }) as BrevoResponse
-
-    if (!response.ok) {
-      console.error('[EMAIL] Brevo error:', response.status, result)
-      throw new Error(`Brevo failed (${response.status}): ${result.message || JSON.stringify(result)}`)
-    }
-
-    console.log(`[EMAIL] Sent successfully via Brevo. MessageId: ${result.messageId}`)
-    return result
-  } else {
-    // Local dev fallback: Nodemailer SMTP.
-    const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com'
-    const smtpPort = Number(process.env.SMTP_PORT) || 465
-    const smtpUser = process.env.SMTP_USER
-    const smtpPass = process.env.SMTP_PASS
-
-    if (!smtpUser || !smtpPass) {
-      throw new Error('No email provider configured. Set BREVO_API_KEY and BREVO_SENDER_EMAIL in production.')
-    }
-
-    console.log(`[EMAIL] Sending via Nodemailer SMTP -> ${smtpHost}:${smtpPort} to: ${to}`)
-
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: false,
-      auth: {
-        user: smtpUser,
-        pass: smtpPass
-      },
-      tls: {
-        rejectUnauthorized: false
-      }
-    })
-
-    const info = await transporter.sendMail({
-      from: `"ExamOps" <${smtpUser}>`,
-      to,
-      subject,
-      html
-    })
-
-    console.log(`[EMAIL] Sent successfully via Nodemailer. MessageId: ${info.messageId}`)
-    return info
+  if (!brevoKey) {
+    throw new Error('BREVO_API_KEY is not configured in the environment')
   }
+
+  console.log(`[EMAIL] Sending via Brevo API to: ${to}`)
+
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'content-type': 'application/json',
+      'api-key': brevoKey
+    },
+    body: JSON.stringify({
+      sender: { name: senderName, email: senderEmail },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html
+    })
+  })
+
+  const result = await response.json().catch(async () => {
+    const text = await response.text().catch(() => '')
+    return { message: text || response.statusText }
+  }) as BrevoResponse
+
+  if (!response.ok) {
+    console.error('[EMAIL] Brevo error:', response.status, result)
+    throw new Error(`Brevo failed (${response.status}): ${result.message || JSON.stringify(result)}`)
+  }
+
+  console.log(`[EMAIL] Sent successfully via Brevo. MessageId: ${result.messageId}`)
+  return result
 }
 
 // POST /api/auth/send-otp
