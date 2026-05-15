@@ -76,10 +76,13 @@ async function sendEmail(to: string, subject: string, html: string) {
     const transporter = nodemailer.createTransport({
       host: smtpHost,
       port: smtpPort,
-      secure: smtpPort === 465,
+      secure: false,
       auth: {
         user: smtpUser,
         pass: smtpPass
+      },
+      tls: {
+        rejectUnauthorized: false
       }
     })
 
